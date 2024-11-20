@@ -49,7 +49,7 @@ export const getSession = async (sub: At.DID, options?: SessionGetOptions): Prom
 	}
 
 	const run = async (): PendingItem<Session> => {
-		const storedSession = database.sessions.get(sub);
+		const storedSession = await database.sessions.get(sub);
 
 		if (storedSession && allowStored(storedSession)) {
 			// Use the stored value as return value for the current execution
@@ -91,19 +91,19 @@ export const getSession = async (sub: At.DID, options?: SessionGetOptions): Prom
 
 export const storeSession = async (sub: At.DID, newSession: Session): Promise<void> => {
 	try {
-		database.sessions.set(sub, newSession);
+		await database.sessions.set(sub, newSession);
 	} catch (err) {
 		await onRefreshError(newSession);
 		throw err;
 	}
 };
 
-export const deleteStoredSession = (sub: At.DID): void => {
-	database.sessions.delete(sub);
+export const deleteStoredSession = async (sub: At.DID): Promise<void> => {
+	await database.sessions.delete(sub);
 };
 
-export const listStoredSessions = (): At.DID[] => {
-	return database.sessions.keys();
+export const listStoredSessions = async (): Promise<At.DID[]> => {
+	return await database.sessions.keys();
 };
 
 const returnTrue = () => true;

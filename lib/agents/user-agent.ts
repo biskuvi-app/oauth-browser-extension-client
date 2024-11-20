@@ -43,7 +43,7 @@ export class OAuthUserAgent implements FetchHandlerObject {
 
 			await server.revoke(token.refresh ?? token.access);
 		} finally {
-			deleteStoredSession(sub);
+			await deleteStoredSession(sub);
 		}
 	}
 

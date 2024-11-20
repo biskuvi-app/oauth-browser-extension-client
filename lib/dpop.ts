@@ -78,7 +78,7 @@ export const createDPoPFetch = (issuer: string, dpopKey: DPoPKey, isAuthServer?:
 
 		let initNonce: string | undefined;
 		try {
-			initNonce = nonces.get(origin);
+			initNonce = await nonces.get(origin);
 		} catch {
 			// Ignore get errors, we will just not send a nonce
 		}
@@ -97,7 +97,7 @@ export const createDPoPFetch = (issuer: string, dpopKey: DPoPKey, isAuthServer?:
 
 		// Store the fresh nonce for future requests
 		try {
-			nonces.set(origin, nextNonce);
+			await nonces.set(origin, nextNonce);
 		} catch {
 			// Ignore set errors
 		}
@@ -128,7 +128,7 @@ export const createDPoPFetch = (issuer: string, dpopKey: DPoPKey, isAuthServer?:
 const isUseDpopNonceError = async (response: Response, isAuthServer?: boolean): Promise<boolean> => {
 	// https://datatracker.ietf.org/doc/html/rfc6750#section-3
 	// https://datatracker.ietf.org/doc/html/rfc9449#name-resource-server-provided-no
-	if (isAuthServer === undefined || isAuthServer === false) {
+	if (isAuthServer === undefined || !isAuthServer) {
 		if (response.status === 401) {
 			const wwwAuth = response.headers.get('www-authenticate');
 			if (wwwAuth?.startsWith('DPoP')) {
@@ -138,7 +138,7 @@ const isUseDpopNonceError = async (response: Response, isAuthServer?: boolean): 
 	}
 
 	// https://datatracker.ietf.org/doc/html/rfc9449#name-authorization-server-provid
-	if (isAuthServer === undefined || isAuthServer === true) {
+	if (isAuthServer === undefined || isAuthServer) {
 		if (response.status === 400 && extractContentType(response.headers) === 'application/json') {
 			try {
 				const json = await response.clone().json();

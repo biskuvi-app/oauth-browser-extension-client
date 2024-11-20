@@ -46,7 +46,7 @@ export const createAuthorizationUrl = async ({
 		// ui_locales: undefined,
 	} satisfies Record<string, string | undefined>;
 
-	database.states.set(state, {
+	await database.states.set(state, {
 		dpopKey: dpopKey,
 		metadata: metadata,
 		verifier: pkce.verifier,
@@ -77,10 +77,10 @@ export const finalizeAuthorization = async (params: URLSearchParams) => {
 		throw new LoginError(`missing parameters`);
 	}
 
-	const stored = database.states.get(state);
+	const stored = await database.states.get(state);
 	if (stored) {
 		// Delete now that we've caught it
-		database.states.delete(state);
+		await database.states.delete(state);
 	} else {
 		throw new LoginError(`unknown state provided`);
 	}
