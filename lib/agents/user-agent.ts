@@ -9,7 +9,7 @@ import { OAuthServerAgent } from './server-agent.js';
 import { type SessionGetOptions, deleteStoredSession, getSession } from './sessions.js';
 
 export class OAuthUserAgent implements FetchHandlerObject {
-	#fetch: typeof fetch;
+	readonly #fetch: typeof fetch;
 	#getSessionPromise: Promise<Session> | undefined;
 
 	constructor(public session: Session) {

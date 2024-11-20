@@ -1,12 +1,12 @@
-import type { At, ComAtprotoIdentityResolveHandle } from '@atcute/client/lexicons';
-import { type DidDocument, getPdsEndpoint } from '@atcute/client/utils/did';
+import type {At, ComAtprotoIdentityResolveHandle} from '@atcute/client/lexicons';
+import {type DidDocument, getPdsEndpoint} from '@atcute/client/utils/did';
 
-import { DEFAULT_APPVIEW_URL } from './constants.js';
-import { ResolverError } from './errors.js';
-import type { IdentityMetadata } from './types/identity.js';
-import type { AuthorizationServerMetadata, ProtectedResourceMetadata } from './types/server.js';
-import { extractContentType } from './utils/response.js';
-import { isDid } from './utils/strings.js';
+import {DEFAULT_APPVIEW_URL} from './constants.js';
+import {ResolverError} from './errors.js';
+import type {IdentityMetadata} from './types/identity.js';
+import type {AuthorizationServerMetadata, ProtectedResourceMetadata} from './types/server.js';
+import {extractContentType} from './utils/response.js';
+import {isDid} from './utils/strings.js';
 
 const DID_WEB_RE = /^([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*(?:\.[a-zA-Z]{2,}))$/;
 
@@ -152,8 +152,7 @@ export const resolveFromIdentity = async (
 	if (isDid(ident)) {
 		did = ident;
 	} else {
-		const resolved = await resolveHandle(ident);
-		did = resolved;
+		did = await resolveHandle(ident);
 	}
 
 	const doc = await getDidDocument(did);

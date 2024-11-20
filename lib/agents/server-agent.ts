@@ -12,8 +12,8 @@ import { pick } from '../utils/misc.js';
 import { extractContentType } from '../utils/response.js';
 
 export class OAuthServerAgent {
-	#fetch: typeof fetch;
-	#metadata: PersistedAuthorizationServerMetadata;
+	readonly #fetch: typeof fetch;
+	readonly #metadata: PersistedAuthorizationServerMetadata;
 
 	constructor(metadata: PersistedAuthorizationServerMetadata, dpopKey: DPoPKey) {
 		this.#metadata = metadata;
@@ -84,11 +84,13 @@ export class OAuthServerAgent {
 			refresh_token: token.refresh,
 		});
 
+		if(!response.sub) {
+			throw new TokenRefreshError(sub, `missing value for sub in token response`);
+		}
+		if (sub !== response.sub) {
+			throw new TokenRefreshError(sub, `sub mismatch in token response; got ${response.sub}`);
+		}
 		try {
-			if (sub !== response.sub) {
-				throw new TokenRefreshError(sub, `sub mismatch in token response; got ${response.sub}`);
-			}
-
 			return this.#processTokenResponse(response);
 		} catch (err) {
 			await this.revoke(response.access_token);
