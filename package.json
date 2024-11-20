@@ -7,7 +7,6 @@
   "repository": {
     "url": "https://github.com/biskuvi-app/oauth-browser-extension-client"
   },
-  "module": "lib/index.ts",
   "files": [
     "dist/",
     "lib/",
