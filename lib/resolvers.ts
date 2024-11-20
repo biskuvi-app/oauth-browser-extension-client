@@ -8,6 +8,7 @@ import type {AuthorizationServerMetadata, ProtectedResourceMetadata} from './typ
 import {extractContentType} from './utils/response.js';
 import {isDid} from './utils/strings.js';
 
+// noinspection RegExpUnnecessaryNonCapturingGroup
 const DID_WEB_RE = /^([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*(?:\.[a-zA-Z]{2,}))$/;
 
 /**
