@@ -85,7 +85,7 @@ export const createOAuthDatabase = ({name}: OAuthDatabaseOptions) => {
         subname: N,
         expiresAt: (item: Schema[N]['value']) => null | number,
     ): SimpleStore<Schema[N]['key'], Schema[N]['value']> => {
-        let store: any;
+        let store: { [key: string]: any } | null | undefined;
 
         const storageKey = `${name}:${subname}`;
         const storage = getLocalStorage();
@@ -158,7 +158,11 @@ export const createOAuthDatabase = ({name}: OAuthDatabaseOptions) => {
             async get(key) {
                 await read();
 
-                const item: SchemaItem<Schema[N]['value']> = store[key];
+                if(!store) {
+                    return;
+                }
+
+                const item: SchemaItem<Schema[N]['value']>  = store[key];
                 if (!item) {
                     return;
                 }
@@ -175,7 +179,9 @@ export const createOAuthDatabase = ({name}: OAuthDatabaseOptions) => {
             },
             async set(key, value) {
                 await read();
-
+                if (!store) {
+                    store = {};
+                }
                 store[key] = {
                     expiresAt: expiresAt(value),
                     value: value,
@@ -184,14 +190,19 @@ export const createOAuthDatabase = ({name}: OAuthDatabaseOptions) => {
             },
             async delete(key) {
                 await read();
-
-                if (store[key] !== undefined) {
+                if (!store) {
+                    return;
+                }
+                else if (store[key] !== undefined) {
                     delete store[key];
                     await persist();
                 }
             },
             async keys() {
                 await read();
+                if (!store) {
+                    return [];
+                }
                 return Object.keys(store);
             },
         };

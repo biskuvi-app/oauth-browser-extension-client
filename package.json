@@ -1,12 +1,13 @@
 {
-  "type": "module",
   "name": "@biskuvi-app/oauth-browser-extension-client",
+  "type": "module",
   "version": "1.0.5",
   "description": "Fork of @atcute/oauth-browser-client to support browser extensions",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/biskuvi-app/oauth-browser-extension-client"
   },
+  "module": "lib/index.ts",
   "files": [
     "dist/",
     "lib/",
@@ -28,7 +29,6 @@
   "devDependencies": {
     "@types/bun": "latest"
   },
-  "module": "index.ts",
   "peerDependencies": {
     "typescript": "^5.0.0"
   }
