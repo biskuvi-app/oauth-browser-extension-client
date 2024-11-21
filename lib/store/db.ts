@@ -5,6 +5,7 @@ import type {AuthorizationServerMetadata} from '../types/server.js';
 import type {SimpleStore} from '../types/store.js';
 import type {Session} from '../types/token.js';
 import {locks} from '../utils/runtime.js';
+import {RsOk} from "../utils/result.js";
 
 export interface OAuthDatabaseOptions {
     name: string;
@@ -15,7 +16,7 @@ interface SchemaItem<T> {
     expiresAt: number | null;
 }
 
-interface Schema {
+export interface Schema {
     sessions: {
         key: At.DID;
         value: Session;
@@ -84,12 +85,17 @@ export const createOAuthDatabase = ({name}: OAuthDatabaseOptions) => {
     const createStore = <N extends keyof Schema>(
         subname: N,
         expiresAt: (item: Schema[N]['value']) => null | number,
-    ): SimpleStore<Schema[N]['key'], Schema[N]['value']> => {
+    ): SimpleStore<Schema[N]['key'], Schema[N]['value']> | null |undefined => {
         let store: { [key: string]: any } | null | undefined;
 
         const storageKey = `${name}:${subname}`;
         const storage = getLocalStorage();
-        const persist = async () => store && await storage.set({storageKey: JSON.stringify(store)});
+
+        async function persist() {
+            RsOk<any>(store);
+            await storage.set({storageKey: JSON.stringify(store)});
+        }
+
         const read = async () => {
             if (signal.aborted) {
                 throw new Error(`store closed`);

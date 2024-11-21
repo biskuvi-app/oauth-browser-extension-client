@@ -8,6 +8,9 @@ import { generatePKCE, generateState } from '../utils/runtime.js';
 
 import { OAuthServerAgent } from './server-agent.js';
 import { storeSession } from './sessions.js';
+import type {OAuthDatabase} from "../store/db.js";
+import {RsOk} from "../utils/result.js";
+import type {SimpleStore} from "../types/store.js";
 
 export interface AuthorizeOptions {
 	metadata: AuthorizationServerMetadata;
@@ -45,8 +48,9 @@ export const createAuthorizationUrl = async ({
 		scope: scope,
 		// ui_locales: undefined,
 	} satisfies Record<string, string | undefined>;
-
-	await database.states.set(state, {
+	let db = RsOk<OAuthDatabase>(database);
+	let states = RsOk<SimpleStore<any, any>>(db.states);
+	await states.set(state, {
 		dpopKey: dpopKey,
 		metadata: metadata,
 		verifier: pkce.verifier,
@@ -77,10 +81,12 @@ export const finalizeAuthorization = async (params: URLSearchParams) => {
 		throw new LoginError(`missing parameters`);
 	}
 
-	const stored = await database.states.get(state);
+	let db = RsOk<OAuthDatabase>(database);
+	let states = RsOk<SimpleStore<any, any>>(db.states);
+	const stored = await states.get(state);
 	if (stored) {
 		// Delete now that we've caught it
-		await database.states.delete(state);
+		await states.delete(state);
 	} else {
 		throw new LoginError(`unknown state provided`);
 	}

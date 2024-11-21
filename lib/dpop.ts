@@ -4,6 +4,9 @@ import { database } from './environment.js';
 import type { DPoPKey } from './types/dpop.js';
 import { extractContentType } from './utils/response.js';
 import { encoder, fromBase64Url, toBase64Url, toSha256 } from './utils/runtime.js';
+import {RsOk} from "./utils/result.js";
+import type {SimpleStore} from "./types/store.js";
+import type {OAuthDatabase} from "./store/db.js";
 
 const ES256_ALG = { name: 'ECDSA', namedCurve: 'P-256' } as const;
 
@@ -62,7 +65,8 @@ export const createDPoPSignage = (issuer: string, dpopKey: DPoPKey) => {
 };
 
 export const createDPoPFetch = (issuer: string, dpopKey: DPoPKey, isAuthServer?: boolean): typeof fetch => {
-	const nonces = database.dpopNonces;
+	const db = RsOk<OAuthDatabase>(database);
+	const nonces = RsOk<SimpleStore<string, string>>(db.dpopNonces);
 	const sign = createDPoPSignage(issuer, dpopKey);
 
 	return async (input, init) => {

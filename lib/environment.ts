@@ -3,7 +3,7 @@ import { createOAuthDatabase, type OAuthDatabase } from './store/db.js';
 export let CLIENT_ID: string;
 export let REDIRECT_URI: string;
 
-export let database: OAuthDatabase;
+export let database: OAuthDatabase | null | undefined;
 
 export interface ConfigureOAuthOptions {
 	/**
