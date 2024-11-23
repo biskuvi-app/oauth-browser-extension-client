@@ -1,8 +1,8 @@
-import type {At} from '@atcute/client/lexicons';
-import type {DPoPKey} from '../types/dpop.js';
-import type {AuthorizationServerMetadata} from '../types/server.js';
-import type {SimpleStore} from '../types/store.js';
-import type {Session} from '../types/token.js';
+import type { At } from "@atcute/client/lexicons";
+import type { DPoPKey } from "../types/dpop.js";
+import type { AuthorizationServerMetadata } from "../types/server.js";
+import type { SimpleStore } from "../types/store.js";
+import type { Session } from "../types/token.js";
 
 export interface OAuthDatabaseOptions {
     name: string;
@@ -47,39 +47,35 @@ export class OAuthDatabase {
                 // @ts-ignore Chromium
                 OAuthDatabase.storage = chrome.storage;
             } catch {
-
+                try {
+                    // @ts-ignore Firefox
+                    OAuthDatabase.storage = browser.storage;
+                } catch {
+                    throw "Unsupported browser";
+                }
             }
-
-            try {
-                // @ts-ignore Firefox
-                OAuthDatabase.storage = browser.storage;
-            } catch {
-
-            }
-
-            throw "Unsupported browser";
         }
 
         this.name = options.name;
         this.controller = new AbortController();
         this.signal = this.controller.signal;
 
-        this.sessions = this.createStore('sessions', ({token}) => {
+        this.sessions = this.createStore("sessions", ({token}) => {
             if (token.refresh) {
                 return null;
             }
             return token.expires_at ?? null;
         });
 
-        this.states = this.createStore('states', (_item) => Date.now() + 10 * 60 * 1_000);
-        this.dpopNonces = this.createStore('dpopNonces', (_item) => Date.now() + 10 * 60 * 1_000);
+        this.states = this.createStore("states", (_item) => Date.now() + 10 * 60 * 1_000);
+        this.dpopNonces = this.createStore("dpopNonces", (_item) => Date.now() + 10 * 60 * 1_000);
 
         // OAuthDatabase.storage.onChanged.addListener(this.handleStorageChange.bind(this));
     }
 
-    sessions: SimpleStore<Schema['sessions']['key'], Schema['sessions']['value']>;
-    states: SimpleStore<Schema['states']['key'], Schema['states']['value']>;
-    dpopNonces: SimpleStore<Schema['dpopNonces']['key'], Schema['dpopNonces']['value']>;
+    sessions: SimpleStore<Schema["sessions"]["key"], Schema["sessions"]["value"]>;
+    states: SimpleStore<Schema["states"]["key"], Schema["states"]["value"]>;
+    dpopNonces: SimpleStore<Schema["dpopNonces"]["key"], Schema["dpopNonces"]["value"]>;
 
     // private handleStorageChange(changes: { [key: string]: any }, namespace: string) {
     //     if (namespace !== 'local') return;
@@ -92,19 +88,19 @@ export class OAuthDatabase {
 
     private createStore<N extends keyof Schema>(
         subname: N,
-        expiresAt: (item: Schema[N]['value']) => null | number,
-    ): SimpleStore<Schema[N]['key'], Schema[N]['value']> {
+        expiresAt: (item: Schema[N]["value"]) => null | number,
+    ): SimpleStore<Schema[N]["key"], Schema[N]["value"]> {
         const storageKey = `${this.name}:${subname}`;
 
-        const persist = async (store: Record<string, SchemaItem<Schema[N]['value']>>) => {
+        const persist = async (store: Record<string, SchemaItem<Schema[N]["value"]>>) => {
             try {
                 await OAuthDatabase.storage.local.set({[storageKey]: store});
             } catch (error) {
-                console.error('Error persisting storage:', error);
+                console.error("Error persisting storage:", error);
             }
         };
 
-        const read = async (): Promise<Record<string, SchemaItem<Schema[N]['value']>>> => {
+        const read = async (): Promise<Record<string, SchemaItem<Schema[N]["value"]>>> => {
             if (this.signal.aborted) {
                 throw new Error(`store closed`);
             }
@@ -113,7 +109,7 @@ export class OAuthDatabase {
                 const result = await OAuthDatabase.storage.local.get(storageKey);
                 return result[storageKey] || {};
             } catch (error) {
-                console.error('Error reading storage:', error);
+                console.error("Error reading storage:", error);
                 return {};
             }
         };
@@ -141,18 +137,18 @@ export class OAuthDatabase {
                     await persist(store);
                 }
             } catch (error) {
-                console.error('Error during cleanup:', error);
+                console.error("Error during cleanup:", error);
             }
         };
 
         // Periodically clean up expired items
         const cleanupInterval = setInterval(cleanup, 10_000);
-        this.signal.addEventListener('abort', () => clearInterval(cleanupInterval));
+        this.signal.addEventListener("abort", () => clearInterval(cleanupInterval));
 
         return {
             async get(key) {
                 const store = await read();
-                const item: SchemaItem<Schema[N]['value']> | undefined = store[key];
+                const item: SchemaItem<Schema[N]["value"]> | undefined = store[key];
 
                 if (!item) {
                     return;
