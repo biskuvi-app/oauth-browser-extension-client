@@ -74,17 +74,17 @@ export class OAuthDatabase {
         this.states = this.createStore('states', (_item) => Date.now() + 10 * 60 * 1_000);
         this.dpopNonces = this.createStore('dpopNonces', (_item) => Date.now() + 10 * 60 * 1_000);
 
-        OAuthDatabase.storage.onChanged.addListener(this.handleStorageChange.bind(this));
+        // OAuthDatabase.storage.onChanged.addListener(this.handleStorageChange.bind(this));
     }
 
     sessions: SimpleStore<Schema['sessions']['key'], Schema['sessions']['value']>;
     states: SimpleStore<Schema['states']['key'], Schema['states']['value']>;
     dpopNonces: SimpleStore<Schema['dpopNonces']['key'], Schema['dpopNonces']['value']>;
 
-    private handleStorageChange(changes: { [key: string]: any }, namespace: string) {
-        if (namespace !== 'local') return;
-        console.log('Storage changed:', changes);
-    }
+    // private handleStorageChange(changes: { [key: string]: any }, namespace: string) {
+    //     if (namespace !== 'local') return;
+    //     console.log('Storage changed:', changes);
+    // }
 
     dispose(): void {
         this.controller.abort();

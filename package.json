@@ -1,7 +1,7 @@
 {
   "name": "@biskuvi-app/oauth-browser-extension-client",
   "type": "module",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Fork of @atcute/oauth-browser-client to support browser extensions",
   "license": "MIT",
   "repository": {
@@ -19,7 +19,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
-    "prepublish": "rm -rf dist; pnpm run build"
+    "prepublish": "rm -rf dist; npm run build"
   },
   "dependencies": {
     "@atcute/client": "^2.0.4",
