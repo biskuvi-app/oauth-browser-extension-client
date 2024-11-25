@@ -114,6 +114,8 @@ export class OAuthDatabase {
             }
         };
 
+        let cleanupInterval: Timer | null = null;
+
         const cleanup = async () => {
             if (this.signal.aborted) {
                 return;
@@ -136,13 +138,19 @@ export class OAuthDatabase {
                 if (changed) {
                     await persist(store);
                 }
-            } catch (error) {
+            } catch (error: any) {
+                if (error.message.includes("Extension context invalidated.")) {
+                    if (cleanupInterval) {
+                        clearInterval(cleanupInterval);
+                    }
+                    return;
+                }
                 console.error("Error during cleanup:", error);
             }
         };
 
         // Periodically clean up expired items
-        const cleanupInterval = setInterval(cleanup, 10_000);
+        cleanupInterval = setInterval(cleanup, 10_000);
         this.signal.addEventListener("abort", () => clearInterval(cleanupInterval));
 
         return {
