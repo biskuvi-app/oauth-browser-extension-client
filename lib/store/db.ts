@@ -95,7 +95,10 @@ export class OAuthDatabase {
         const persist = async (store: Record<string, SchemaItem<Schema[N]["value"]>>) => {
             try {
                 await OAuthDatabase.storage.local.set({[storageKey]: store});
-            } catch (error) {
+            } catch (error: Error | any) {
+                if (error.message.includes("Extension context invalidated.")) {
+                    throw "Extension context invalidated. Please reload the web page";
+                }
                 console.error("Error persisting storage:", error);
             }
         };
@@ -108,7 +111,10 @@ export class OAuthDatabase {
             try {
                 const result = await OAuthDatabase.storage.local.get(storageKey);
                 return result[storageKey] || {};
-            } catch (error) {
+            } catch (error: Error | any) {
+                if (error.message.includes("Extension context invalidated.")) {
+                    throw "Extension context invalidated. Please reload the web page";
+                }
                 console.error("Error reading storage:", error);
                 return {};
             }
@@ -143,7 +149,7 @@ export class OAuthDatabase {
                     if (cleanupInterval) {
                         clearInterval(cleanupInterval);
                     }
-                    return;
+                    throw "Extension context invalidated. Please reload the web page";
                 }
                 console.error("Error during cleanup:", error);
             }
