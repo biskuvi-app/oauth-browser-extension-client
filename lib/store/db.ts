@@ -97,7 +97,7 @@ export class OAuthDatabase {
                 await OAuthDatabase.storage.local.set({[storageKey]: store});
             } catch (error: Error | any) {
                 if (error.message.includes("Extension context invalidated.")) {
-                    throw "Extension context invalidated. Please reload the web page";
+                    return;
                 }
                 console.error("Error persisting storage:", error);
             }
@@ -113,7 +113,7 @@ export class OAuthDatabase {
                 return result[storageKey] || {};
             } catch (error: Error | any) {
                 if (error.message.includes("Extension context invalidated.")) {
-                    throw "Extension context invalidated. Please reload the web page";
+                    return {};
                 }
                 console.error("Error reading storage:", error);
                 return {};
@@ -144,12 +144,9 @@ export class OAuthDatabase {
                 if (changed) {
                     await persist(store);
                 }
-            } catch (error: any) {
+            } catch (error: Error | any) {
                 if (error.message.includes("Extension context invalidated.")) {
-                    if (cleanupInterval) {
-                        clearInterval(cleanupInterval);
-                    }
-                    throw "Extension context invalidated. Please reload the web page";
+                    return;
                 }
                 console.error("Error during cleanup:", error);
             }
